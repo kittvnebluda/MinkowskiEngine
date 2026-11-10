@@ -17,7 +17,7 @@
 #ifndef CONCURRENT_UNORDERED_MAP_CUH
 #define CONCURRENT_UNORDERED_MAP_CUH
 
-#include <cudf/detail/nvtx/ranges.hpp>
+#include <thrust/execution_policy.h>
 #include <hash/hash_allocator.cuh>
 #include <hash/helper_functions.cuh>
 #include <hash/managed.cuh>
@@ -177,7 +177,6 @@ class concurrent_unordered_map {
                      const allocator_type& allocator  = allocator_type(),
                      cudaStream_t stream              = 0)
   {
-    CUDF_FUNC_RANGE();
     using Self = concurrent_unordered_map<Key, Element, Hasher, Equality, Allocator>;
 
     // Note: need `(*p).destroy` instead of `p->destroy` here
@@ -585,8 +584,9 @@ class concurrent_unordered_map {
       if (cudaSuccess == status && isPtrManaged(hashtbl_values_ptr_attributes)) {
         int dev_id = 0;
         CUDA_TRY(cudaGetDevice(&dev_id));
+        cudaMemLocation location{cudaMemLocationTypeDevice, dev_id};
         CUDA_TRY(
-          cudaMemPrefetchAsync(m_hashtbl_values, m_capacity * sizeof(value_type), dev_id, stream));
+          cudaMemPrefetchAsync(m_hashtbl_values, m_capacity * sizeof(value_type), location, 0, stream));
       }
     }
 

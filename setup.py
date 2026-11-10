@@ -120,7 +120,6 @@ def _argparse(pattern, argv, is_flag=True, is_list=False):
 
 
 run_command("rm", "-rf", "build")
-run_command("pip", "uninstall", "MinkowskiEngine", "-y")
 
 # For cpu only build
 CPU_ONLY, argv = _argparse("--cpu_only", argv)
@@ -146,7 +145,7 @@ MAX_COMPILATION_THREADS = 12
 
 Extension = CUDAExtension
 extra_link_args = []
-include_dirs = []
+include_dirs = ["/opt/cuda/include/cccl"]
 libraries = []
 CC_FLAGS = []
 NVCC_FLAGS = []
@@ -192,6 +191,8 @@ if not (BLAS is False):  # False only when not set, str otherwise
         NVCC_FLAGS.append("-DUSE_MKL")
     else:
         libraries.append(BLAS)
+        if BLAS == "blas":
+            libraries.append("cblas")
     if not (BLAS_INCLUDE_DIRS is False):
         include_dirs += BLAS_INCLUDE_DIRS
     if not (BLAS_LIBRARY_DIRS is False):

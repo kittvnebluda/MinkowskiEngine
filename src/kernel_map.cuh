@@ -38,6 +38,8 @@
 #include <memory>
 
 #include <thrust/copy.h>
+#include <thrust/tuple.h>
+#include <thrust/iterator/zip_iterator.h>
 #include <thrust/execution_policy.h>
 #include <thrust/iterator/constant_iterator.h>
 #include <thrust/iterator/counting_iterator.h>

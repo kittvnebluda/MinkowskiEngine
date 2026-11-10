@@ -26,6 +26,9 @@
 #include "types.hpp"
 
 #include <thrust/functional.h>
+#include <thrust/tuple.h>
+#include <thrust/execution_policy.h>
+#include <thrust/iterator/zip_iterator.h>
 #include <thrust/host_vector.h>
 #include <thrust/pair.h>
 
@@ -107,9 +110,7 @@ struct insert_coordinate {
 };
 
 template <typename coordinate_type, typename map_type>
-struct find_coordinate
-    : public thrust::unary_function<uint32_t,
-                                    thrust::pair<uint32_t, uint32_t>> {
+struct find_coordinate {
   using mapped_type = typename map_type::mapped_type;
   using return_type = thrust::pair<mapped_type, mapped_type>;
 
