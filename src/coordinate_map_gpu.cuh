@@ -136,9 +136,13 @@ public:
       LOG_DEBUG("Reserve map of",
                 compute_hash_table_size(size, m_hashtable_occupancy),
                 "for concurrent_unordered_map of size", size);
-      m_map = map_type::create(
+      auto map = map_type::create(
           compute_hash_table_size(size, m_hashtable_occupancy),
           m_unused_element, m_unused_key, m_hasher, m_equal, m_map_allocator);
+      // from the raw pointer, not the unique_ptr: that conversion calls an unqualified __to_address, ambiguous with
+      // CUDA 12's cuda::std one found through the thrust template arguments
+      auto deleter = map.get_deleter();
+      m_map.reset(map.release(), std::move(deleter));
       LOG_DEBUG("Done concurrent_unordered_map creation");
       CUDA_TRY(cudaStreamSynchronize(0));
       m_capacity = size;

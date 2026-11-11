@@ -584,9 +584,14 @@ class concurrent_unordered_map {
       if (cudaSuccess == status && isPtrManaged(hashtbl_values_ptr_attributes)) {
         int dev_id = 0;
         CUDA_TRY(cudaGetDevice(&dev_id));
+#if CUDART_VERSION >= 13000
         cudaMemLocation location{cudaMemLocationTypeDevice, dev_id};
         CUDA_TRY(
           cudaMemPrefetchAsync(m_hashtbl_values, m_capacity * sizeof(value_type), location, 0, stream));
+#else
+        CUDA_TRY(
+          cudaMemPrefetchAsync(m_hashtbl_values, m_capacity * sizeof(value_type), dev_id, stream));
+#endif
       }
     }
 

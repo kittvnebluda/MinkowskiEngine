@@ -145,7 +145,7 @@ MAX_COMPILATION_THREADS = 12
 
 Extension = CUDAExtension
 extra_link_args = []
-include_dirs = ["/opt/cuda/include/cccl"]
+include_dirs = []
 libraries = []
 CC_FLAGS = []
 NVCC_FLAGS = []
@@ -164,6 +164,13 @@ else:
 
 if not (CUDA_HOME is False):  # False when not set, str otherwise
     print(f"Using CUDA_HOME={CUDA_HOME}")
+
+# CUDA 13 moved thrust and cub (CCCL) under include/cccl
+from torch.utils.cpp_extension import CUDA_HOME as TORCH_CUDA_HOME
+
+_cccl = os.path.join(CUDA_HOME or TORCH_CUDA_HOME or "/usr/local/cuda", "include", "cccl")
+if os.path.isdir(_cccl):
+    include_dirs.append(_cccl)
 
 if sys.platform == "win32":
     vc_version = os.getenv("VCToolsVersion", "")
